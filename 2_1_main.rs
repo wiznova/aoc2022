@@ -65,7 +65,7 @@ fn main() {
     println!("In file {}", file_path);
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     let split: Vec<&str> = contents.split("\n").collect();
-    // let acc = 0;
+    let mut acc: i32 = 0;
 
     for s in split {
         if s == "" {
@@ -75,10 +75,10 @@ fn main() {
         let opponent = to_choice(char_vec[0]);
         let me = to_choice(char_vec[char_vec.len() - 1]);
         let state = to_state(opponent, me);
-        println!("state-{} {:?}", calculate_score(me, state), state);
-        // acc += me.
+        // println!("state-{} {:?}", calculate_score(me, state), state);
+        acc += calculate_score(me, state) as i32;
     }
-    // println!("State: {:?}", to_state(opponent, me));
+    println!("Score: {}", acc);
 
 
 }
