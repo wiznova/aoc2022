@@ -29,16 +29,17 @@ fn main() {
     for s in split {
         if s == "" {
             read_mode = ReadMode::Instructions;
-            for mut stack in &mut map.stacks {
+            for stack in &mut map.stacks {
                 stack.reverse();
             }
+            println!("Map initialised: {:?}", map);
             continue
         }
         if read_mode == ReadMode::Map {
             if !map_initialised {
-                let num_stacks: usize = (s.len() + 1) / 4;
-
-                for i in 0..num_stacks {
+                map.num_stacks = (s.len() + 1) / 4;
+                
+                for _ in 0..map.num_stacks {
                     map.stacks.push(Vec::new());
                 }
                 map_initialised = true;
@@ -48,15 +49,27 @@ fn main() {
                     map.stacks[stack_i].push(chars[1])
                 }
             }
-
-            // println!("Map str len: {}", s.len());
-            // println!("num of stacks {}", num_stacks);
         } else {
-            // println!("Reading instruction");
+            let halves: Vec<&str> = s.split(" from ").collect();
+            let quantity = halves[0][5..halves[0].len()].parse::<i32>().unwrap();
+            let from_i = (halves[1][0..1].parse::<i32>().unwrap() - 1) as usize;
+            let to_i = (halves[1][halves[1].len() - 1..halves[1].len()].parse::<i32>().unwrap() - 1) as usize;
+
+            // println!("halves: {:?}", halves);
+            // println!("quantity: {:?}", quantity);
+            // println!("from: {:?}", from);
+            // println!("to: {:?}", to);
+            for _ in 0..quantity {
+                let temp = map.stacks[from_i].pop().unwrap();
+                map.stacks[to_i].push(temp);
+            }
+
         }
     }
-    println!("Map initialised: {:?}", map);
-    println!("Pop result of first stack: {}", map.stacks[0].pop().unwrap());
-    println!("Map initialised: {:?}", map);
+    // println!("Pop result of first stack: {}", map.stacks[0].pop().unwrap());
+    println!("Map result: {:?}", map);
+    for stack in map.stacks {
+        print!("{}", stack[stack.len() - 1]);
+    }
     // println!("Score: {}", acc);
 }
