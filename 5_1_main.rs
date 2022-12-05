@@ -29,6 +29,9 @@ fn main() {
     for s in split {
         if s == "" {
             read_mode = ReadMode::Instructions;
+            for mut stack in &mut map.stacks {
+                stack.reverse();
+            }
             continue
         }
         if read_mode == ReadMode::Map {
@@ -40,7 +43,11 @@ fn main() {
                 }
                 map_initialised = true;
             }
-
+            for (stack_i, chars) in s.chars().collect::<Vec<char>>().chunks(4).enumerate() {
+                if chars[1] != ' ' && !chars[1].is_numeric() {
+                    map.stacks[stack_i].push(chars[1])
+                }
+            }
 
             // println!("Map str len: {}", s.len());
             // println!("num of stacks {}", num_stacks);
@@ -49,6 +56,7 @@ fn main() {
         }
     }
     println!("Map initialised: {:?}", map);
-
+    println!("Pop result of first stack: {}", map.stacks[0].pop().unwrap());
+    println!("Map initialised: {:?}", map);
     // println!("Score: {}", acc);
 }

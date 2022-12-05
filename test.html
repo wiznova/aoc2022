@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      background-color: #f8f8f8;
+    }
+    h1, h2, h3 {
+      font-family: Georgia, serif;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .blog-post {
+      margin-bottom: 30px;
+    }
+    .blog-post-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .blog-post-body {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .navbar {
+      background-color: #333;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    .navbar-logo {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0;
+    }
+    .navbar-menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    .navbar-menu-item {
+      padding: 0 10px;
+    }
+    .navbar-menu-item a {
+      color: #fff;
+      text-decoration: none;
+    }
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #333;
+        color: #fff;
+        padding: 10px 20px;
+        text-align: center;
+      }
+      @media (max-width: 600px) {
+        .navbar-burger {
+          display: block;
+          cursor: pointer;
+          width: 35px;
+          height: 35px;
+        }
+        .navbar-burger div {
+          width: 35px;
+          height: 5px;
+          background-color: #fff;
+          margin: 6px 0;
+        }
+        .navbar-burger div {
+            transition: all 0.3s ease-in-out;
+          }
+        .navbar-burger.is-active div:nth-child(1) {
+            transform: rotate(45deg);
+            transform-origin: 0% 50%;
+        }
+        .navbar-burger.is-active div:nth-child(2) {
+            opacity: 0;
+        }
+        .navbar-burger.is-active div:nth-child(3) {
+            transform: rotate(-45deg);
+            transform-origin: 0% 50%;
+        }
+      }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h1 class="navbar-logo">My Blog</h1>
+    <ul class="navbar-menu">
+      <li class="navbar-menu-item"><a href="#">Home</a></li>
+      <li class="navbar-menu-item"><a href="#">About</a></li>
+      <li class="navbar-menu-item"><a href="#">Contact</a></li>
+    </ul>
+    <div class="navbar-burger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+  </div>
+
+  
+  <div class="container">
+    <div class="blog-post">
+      <h1 class="blog-post-title">My latest blog post</h1>
+      <p class="blog-post-body">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+        auctor, urna ut sollicitudin fringilla, metus metus fermentum risus,
+        quis sodales turpis nisi a ligula. Morbi eget lobortis metus.
+        Suspendisse vel nibh vel turpis interdum ultrices.
+      </p>
+    </div>
+    <div class="blog-post">
+      <h1 class="blog-post-title">My latest blog post</h1>
+      <p class="blog-post-body">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+        auctor, urna ut sollicitudin fringilla, metus metus fermentum risus,
+        quis sodales turpis nisi a ligula. Morbi eget lobortis metus.
+        Suspendisse vel nibh vel turpis interdum ultrices.
+      </p>
+    </div>
+    <div class="blog-post">
+      <h1 class="blog-post-title">My latest blog post</h1>
+      <p class="blog-post-body">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+        auctor, urna ut sollicitudin fringilla, metus metus fermentum risus,
+        quis sodales turpis nisi a ligula. Morbi eget lobortis metus.
+        Suspendisse vel nibh vel turpis interdum ultrices.
+      </p>
+    </div>
+  </div>
+  <div class="footer">
+    <p>Copyright My Blog 2022</p>
+  </div>
+</body>
+<script>
+    const burger = document.querySelector('.navbar-burger');
+    const menu = document.querySelector('.navbar-menu');
+    burger.addEventListener('click', () => {
+      menu.classList.toggle('is-active');
+      burger.classList.toggle('is-active');
+    });
+  </script>
+  
+</html>
