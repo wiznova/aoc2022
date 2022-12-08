@@ -1,29 +1,31 @@
+use std::cell::RefCell;
 use std::fs;
+use std::rc::Rc;
 
-pub trait MutChildren {
-    fn files_mut(&mut self) -> &mut Vec<File>;
-}
+// pub trait MutChildren {
+//     fn files_mut(&mut self) -> &mut Vec<File>;
+// }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 struct File<'a> {
     name: &'a str,
     size: i32,
-    parent: Option<&'a Folder<'a>>,
+    parent: Option<Rc<RefCell<Folder<'a>>>>,
 }
 
 #[derive(Debug, Clone)]
 struct Folder<'a> {
     name: &'a str,
-    parent: Option<&'a Folder<'a>>,
-    folders: Vec<Folder<'a>>,
-    files: Vec<File<'a>>,
+    parent: Option<Rc<RefCell<Folder<'a>>>>,
+    folders: Vec<Rc<RefCell<Folder<'a>>>>,
+    files: Vec<Rc<RefCell<File<'a>>>>,
 }
 
-impl MutChildren for Folder<'_> {
-    fn files_mut(&mut self) -> &mut Vec<File> {
-        &mut self.files
-    }
-}
+// impl MutChildren for Folder<'_> {
+//     fn files_mut(&mut self) -> &mut Vec<File> {
+//         &mut self.files
+//     }
+// }
 
 fn is_numeric(s: &str) -> bool {
     for c in s.chars() {
@@ -34,20 +36,20 @@ fn is_numeric(s: &str) -> bool {
     true
 }
 
-fn new_file<'a>(name: &'a str, size: i32, parent: &'a Folder) -> File<'a> {
-    File {
+fn new_file<'a>(name: &'a str, size: i32) -> Rc<RefCell<File<'a>>> {
+    Rc::new(RefCell::new(File {
         name: name,
         size: size,
-        parent: Some(parent),
-    }
+        parent: None,
+    }))
 }
-fn new_folder<'a>(name: &'a str, parent: &'a Folder) -> Folder<'a> {
-    Folder {
+fn new_folder<'a>(name: &'a str) -> Rc<RefCell<Folder<'a>>> {
+    Rc::new(RefCell::new(Folder {
         name: name,
         folders: Vec::new(),
         files: Vec::new(),
-        parent: Some(parent),
-    }
+        parent: None,
+    }))
 }
 
 fn main() {
@@ -59,13 +61,9 @@ fn main() {
     // let folders: Vec<Folder> = Vec::new();
 
     assert_eq!(split[0], "$ cd /");
-    let mut root = Folder {
-        name: "/",
-        folders: Vec::new(),
-        files: Vec::new(),
-        parent: None,
-    };
-    let mut current_folder = &mut root;
+    let root = new_folder("/");
+    let mut current_folder: Rc<RefCell<Folder>> = root.clone();
+    // let mut current_folder: &mut Folder = root;
 
     for s in &split[1..] {
         let s_split = s.split(" ");
@@ -75,29 +73,39 @@ fn main() {
         }
         // println!("{:?}", s_vec);
         match s_vec[..] {
-            ["$", "ls"] => println!("LS start"),
+            ["$", "ls"] => {
+                println!("LS start");
+                println!("{:?}", current_folder);
+            },
             ["$", "cd", ".."] => {
                 println!("cd back");
-                current_folder = &mut current_folder.parent.unwrap();
+                let parent_folder = current_folder.borrow_mut().parent.clone();
+                current_folder = parent_folder.unwrap();
             }
             ["$", "cd", path] => {
                 println!("cd into: {}", path);
             }
             ["dir", dir_name] => {
                 println!("dir: {}", dir_name);
-                current_folder.folders
-                .push(new_folder(dir_name, current_folder));
+                let new_folder = new_folder(dir_name);
+                new_folder.borrow_mut().parent = Some(current_folder.clone());
+                current_folder
+                    .borrow_mut()
+                    .folders
+                    .push(new_folder);
             }
             [size, filename] if is_numeric(size) => {
                 println!("file: {}-{}", filename, size);
+
                 current_folder
-                    .files_mut()
-                    .push(new_file(filename, size.parse::<i32>().unwrap(), current_folder));
+                    .borrow_mut()
+                    .files
+                    .push(new_file(filename, size.parse::<i32>().unwrap()));
             }
             [] | [_] => todo!(),
             [&_, _] | [&_, _, _, ..] => todo!(),
         }
         // println!("Line: {}", s);
     }
-    println!("{:?}", root);
+    println!("{:?}", current_folder);
 }
