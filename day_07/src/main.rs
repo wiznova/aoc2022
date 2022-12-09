@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::fs;
 use std::rc::Rc;
+use std::thread::current;
 
 // pub trait MutChildren {
 //     fn files_mut(&mut self) -> &mut Vec<File>;
@@ -44,11 +45,54 @@ fn new_folder<'a>(name: &'a str) -> Rc<RefCell<Folder<'a>>> {
         folders: Vec::new(),
         files: Vec::new(),
         parent: None,
+        size_files: 0,
+        size_cumul: 0,
     }))
 }
 
+fn folder_size(folder: &Rc<RefCell<Folder>>) -> u64 {
+    let mut size = folder.borrow().size_files;
+    for f in &folder.borrow().folders {
+        size += folder_size(&f);
+    }
+    return size;
+}
+
+// - / (dir)
+//   - d (dir)
+//     - j (file, size=4060174)
+//     - d.log (file, size=8033020)
+//     - d.ext (file, size=5626152)
+//     - k (file, size=7214296)
+//   - a (dir)
+//     - e (dir)
+//       - i (file, size=584)
+//     - f (file, size=29116)
+//     - g (file, size=2557)
+//     - h.lst (file, size=62596)
+//   - b.txt (file, size=14848514)
+//   - c.dat (file, size=8504156)
+
+
+fn calculate_ch1(root: &Rc<RefCell<Folder>>, upper_bound: u64) -> u64 {
+    let mut sum = 0;
+    let folder_size = folder_size(root);
+    println!("Checking folder: {}, size: {folder_size}", root.borrow().name);
+    if root.borrow().folders.is_empty() && folder_size <= upper_bound {
+        return folder_size;
+    }
+    for f in &root.borrow().folders {
+        let folder_size = calculate_ch1(&f, upper_bound);
+        println!("\tChecking folder: {}, size: {folder_size}", f.borrow().name);
+        if folder_size <= upper_bound {
+            sum += folder_size;
+        }
+    }
+    sum
+}
+
 fn main() {
-    let file_path = "./7_input.txt";
+    let file_path = "./7_input_test.txt";
     println!("In file {}", file_path);
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     // let contents = "nppdvjthqldpwncqszvftbrmjlhg";
@@ -79,12 +123,11 @@ fn main() {
                 let new_folder = new_folder(path);
                 new_folder.borrow_mut().parent = Some(current_folder.clone());
                 current_folder.borrow_mut().folders.push(new_folder.clone());
-
-                // let into_folder = current_folder.borrow_mut().with_name("path");
                 current_folder = new_folder.clone();
             }
             [size, filename] if is_numeric(size) => {
                 println!("file: {}-{}", filename, size);
+                current_folder.borrow_mut().size_files += size.parse::<u64>().unwrap();
 
                 current_folder
                     .borrow_mut()
@@ -95,5 +138,8 @@ fn main() {
         }
         // println!("Line: {}", s);
     }
-    // println!("{:?}", current_folder);
+    let ch1_result = calculate_ch1(&root, 100000u64);
+    println!("ch1_result: {ch1_result}");
+    // println!("{:?}", root.borrow().size_files);
+    // println!("{:?}", root.borrow().folders[0]);
 }
