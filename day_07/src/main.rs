@@ -21,7 +21,6 @@ struct Folder<'a> {
     files: Vec<Rc<RefCell<File<'a>>>>,
     size_files: u64,
     size_cumul: u64,
-
 }
 
 fn is_numeric(s: &str) -> bool {
@@ -73,17 +72,38 @@ fn folder_size(folder: &Rc<RefCell<Folder>>) -> u64 {
 //   - b.txt (file, size=14848514)
 //   - c.dat (file, size=8504156)
 
+fn print_tree(root: &Rc<RefCell<Folder>>, mut depth: usize) {
+    println!("{:<depth$}- {} (dir)", " ", root.borrow().name);
+    depth = depth + 1;
+    for file in &root.borrow().files {
+        println!(
+            "{:<depth$}- {} (file, size={})",
+            " ",
+            file.borrow().name,
+            file.borrow().size
+        );
+    }
+    for folder in &root.borrow().folders {
+        print_tree(folder, depth);
+    }
+}
 
 fn calculate_ch1(root: &Rc<RefCell<Folder>>, upper_bound: u64) -> u64 {
     let mut sum = 0;
     let folder_size = folder_size(root);
-    println!("Checking folder: {}, size: {folder_size}", root.borrow().name);
+    println!(
+        "Checking folder: {}, size: {folder_size}",
+        root.borrow().name
+    );
     if root.borrow().folders.is_empty() && folder_size <= upper_bound {
         return folder_size;
     }
     for f in &root.borrow().folders {
         let folder_size = calculate_ch1(&f, upper_bound);
-        println!("\tChecking folder: {}, size: {folder_size}", f.borrow().name);
+        println!(
+            "\tChecking subfolder: {}, size: {folder_size}",
+            f.borrow().name
+        );
         if folder_size <= upper_bound {
             sum += folder_size;
         }
@@ -116,7 +136,12 @@ fn main() {
                 println!("cd back");
                 // let parent_folder = current_folder.borrow_mut().parent.clone();
                 let current_folder_copy = current_folder.clone();
-                current_folder = current_folder_copy.borrow().parent.as_ref().unwrap().clone();
+                current_folder = current_folder_copy
+                    .borrow()
+                    .parent
+                    .as_ref()
+                    .unwrap()
+                    .clone();
             }
             ["$", "cd", path] => {
                 println!("cd into: {}", path);
@@ -133,11 +158,15 @@ fn main() {
                     .borrow_mut()
                     .files
                     .push(new_file(filename, size.parse::<i32>().unwrap()));
-            },
+            }
             _ => (),
         }
         // println!("Line: {}", s);
     }
+
+    //Print tree
+    print_tree(&root, 1);
+
     let ch1_result = calculate_ch1(&root, 100000u64);
     println!("ch1_result: {ch1_result}");
     // println!("{:?}", root.borrow().size_files);
