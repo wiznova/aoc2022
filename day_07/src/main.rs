@@ -95,24 +95,22 @@ fn calculate_ch1(root: &Rc<RefCell<Folder>>, upper_bound: u64) -> u64 {
         "Checking folder: {}, size: {folder_size}",
         root.borrow().name
     );
-    if root.borrow().folders.is_empty() && folder_size <= upper_bound {
-        return folder_size;
+    if folder_size <= upper_bound {
+        sum += folder_size;
     }
     for f in &root.borrow().folders {
-        let folder_size = calculate_ch1(&f, upper_bound);
         println!(
             "\tChecking subfolder: {}, size: {folder_size}",
             f.borrow().name
         );
-        if folder_size <= upper_bound {
-            sum += folder_size;
-        }
+        sum += calculate_ch1(&f, upper_bound);
     }
     sum
 }
 
 fn main() {
-    let file_path = "./7_input_test.txt";
+    let file_path = "./7_input.txt";
+    // let file_path = "./7_input_test.txt";
     println!("In file {}", file_path);
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     // let contents = "nppdvjthqldpwncqszvftbrmjlhg";
