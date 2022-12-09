@@ -108,6 +108,25 @@ fn calculate_ch1(root: &Rc<RefCell<Folder>>, upper_bound: u64) -> u64 {
     sum
 }
 
+fn calculate_ch2(v: &mut Vec<u64>, root: &Rc<RefCell<Folder>>, lower_bound: u64) {
+    let folder_size = folder_size(root);
+    println!(
+        "Checking folder: {}, size: {folder_size}",
+        root.borrow().name
+    );
+    if folder_size >= lower_bound {
+        println!("{} {}", folder_size, root.borrow().name);
+        v.push(folder_size);
+    }
+    for f in &root.borrow().folders {
+        println!(
+            "\tChecking subfolder: {}, size: {folder_size}",
+            f.borrow().name
+        );
+        calculate_ch2(v, &f, lower_bound);
+    }
+}
+
 fn main() {
     let file_path = "./7_input.txt";
     // let file_path = "./7_input_test.txt";
@@ -163,10 +182,23 @@ fn main() {
     }
 
     //Print tree
-    print_tree(&root, 1);
+    // print_tree(&root, 1);
 
     let ch1_result = calculate_ch1(&root, 100000u64);
     println!("ch1_result: {ch1_result}");
+    
+    let disk_space = 70_000_000u64;
+    let required_space = 30_000_000u64;
+    let unused_space = disk_space - folder_size(&root);
+    let space_to_free = required_space - unused_space;
+    
+    println!("space to free: {}", space_to_free);
+    let mut v = Vec::new();
+    calculate_ch2(&mut v, &root, space_to_free);
+    v.sort();
+    println!("ch2_result: {:?}", v[0]);
+    
+
     // println!("{:?}", root.borrow().size_files);
     // println!("{:?}", root.borrow().folders[0]);
 }
