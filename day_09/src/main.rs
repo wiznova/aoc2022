@@ -20,21 +20,21 @@ impl Point {
         match dir {
             "U" => self.y += 1,
             "R" => self.x += 1,
-            "D" if self.y > 0 => self.y -= 1,
-            "L" if self.x > 0 => self.x -= 1,
+            "D" => self.y -= 1,
+            "L" => self.x -= 1,
             "UR" => {
                 self.move_one("U");
                 self.move_one("R");
             }
-            "UL" if self.x > 0 => {
+            "UL" => {
                 self.move_one("U");
                 self.move_one("L");
             }
-            "DR" if self.y > 0 => {
+            "DR" => {
                 self.move_one("D");
                 self.move_one("R");
             }
-            "DL" if self.y > 0 && self.x > 0 => {
+            "DL" => {
                 self.move_one("D");
                 self.move_one("L");
             }
