@@ -1,10 +1,11 @@
+use std::collections::HashSet;
 use std::fs;
 
 static DIRECTIONS: [&str; 8] = ["U", "D", "L", "R", "UR", "UL", "DR", "DL"];
-static WIDTH: i64 = 10;
-static HEIGHT: i64 = WIDTH;
+static WIDTH: i64 = 6;
+static HEIGHT: i64 = 5;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
 struct Point {
     x: i64,
     y: i64,
@@ -34,11 +35,11 @@ impl Point {
                 self.move_one("R");
             }
             "DL" if self.y > 0 && self.x > 0 => {
-            self.move_one("D");
+                self.move_one("D");
                 self.move_one("L");
             }
-            _ => (),
-            // _ => println!("Bumped wall with: {} and {:?}", dir, self),
+            // _ => (),
+            _ => println!("Bumped wall with: {} and {:?}", dir, self),
         }
         *self
     }
@@ -62,7 +63,7 @@ fn dist(a: Point, b: Point) -> f64 {
 fn print_grid(h: Point, t: Point) {
     for i in (0..HEIGHT).rev() {
         for j in 0..WIDTH {
-            let p = Point{x: j, y: i};
+            let p = Point { x: j, y: i };
             if p == h {
                 print!("H");
             } else if p == t {
@@ -77,8 +78,9 @@ fn print_grid(h: Point, t: Point) {
 }
 
 fn main() {
-    // let file_path = "./input.txt";
-    let file_path = "./test_input.txt";
+    let LOG = false;
+    let file_path = "./input.txt";
+    // let file_path = "./test_input.txt";
     println!("In file {}", file_path);
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     let split: Vec<&str> = contents.split("\n").collect();
@@ -86,14 +88,19 @@ fn main() {
     let mut h = Point { x: 0, y: 0 };
     let mut t = Point { x: 0, y: 0 };
 
+    let mut t_locations = HashSet::new();
+    t_locations.insert(t);
+
     print_grid(h, t);
 
     for s in split {
         let dir = &s[0..1];
         let val = s[2..s.len()].parse::<u64>().unwrap();
 
-        println!("{} {}", dir, val);
-        print_grid(h, t);
+        if LOG {
+            println!("{} {}", dir, val);
+            print_grid(h, t);
+        }
         for _ in 0..val {
             h.move_one(dir);
 
@@ -105,7 +112,11 @@ fn main() {
                     }
                 }
             }
-            print_grid(h, t);
+            if LOG {
+                print_grid(h, t);
+            }
+            t_locations.insert(t);
         }
     }
+    println!("ch1: {}", t_locations.len());
 }
