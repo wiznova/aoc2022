@@ -4,8 +4,8 @@ static DIRECTIONS: [&str; 8] = ["U", "D", "L", "R", "UR", "UL", "DR", "DL"];
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 struct Point {
-    x: u64,
-    y: u64,
+    x: i64,
+    y: i64,
 }
 
 impl Point {
@@ -64,17 +64,29 @@ fn main() {
     let mut t = Point { x: 0, y: 0 };
 
     // println!("{:?}", h.move_one("D"));
-    println!("{:?}", h.possible_moves());
+    // println!("{:?}", h.possible_moves());
 
-    // for s in split {
-    //     let dir = &s[0..1];
-    //     let val = s[2..s.len()].parse::<u64>().unwrap();
+    for s in split {
+        let dir = &s[0..1];
+        let val = s[2..s.len()].parse::<u64>().unwrap();
 
-    //     println!("{} {}", dir, val);
-    //     println!("HEAD: {:?}", h);
-    //     for _ in 0..val {
-    //         h.move_one(dir);
-    //         println!("{:?}", h);
-    //     }
-    // }
+        println!("{} {}", dir, val);
+        println!("START HEAD: {:?}", h);
+        println!("START TAIL: {:?}", t);
+        for _ in 0..val {
+            h.move_one(dir);
+            println!("HEAD: {:?}", h);
+
+            if dist(t, h) > 1.5 {
+                for mv in t.possible_moves() {
+                    if dist(mv, h) == 1.0 {
+                        t = mv;
+                        break;
+                    }
+                }
+            }
+            println!("TAIL: {:?}", t);
+
+        }
+    }
 }
