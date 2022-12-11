@@ -5,15 +5,31 @@ static DIRECTIONS: [&str; 8] = ["U", "D", "L", "R", "UR", "UL", "DR", "DL"];
 static WIDTH: i64 = 6;
 static HEIGHT: i64 = 5;
 
-#[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 struct Point {
     x: i64,
     y: i64,
 }
 
 impl Point {
+    fn new(x: i64, y: i64) -> Point {
+        Point { x: x, y: y }
+    }
+
     fn as_tuple(&self) -> (u64, u64) {
         (self.x as u64, self.y as u64)
+    }
+
+    fn move_closer(&mut self, h: Point) {
+        if dist(*self, h) > 1.5 {
+            for mv in self.possible_moves() {
+                if dist(mv, h) == 1.0 {
+                    self.x = mv.x;
+                    self.y = mv.y;
+                    break;
+                }
+            }
+        }
     }
 
     fn move_one(&mut self, dir: &str) -> Point {
@@ -85,38 +101,41 @@ fn main() {
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     let split: Vec<&str> = contents.split("\n").collect();
 
-    let mut h = Point { x: 0, y: 0 };
-    let mut t = Point { x: 0, y: 0 };
+    let mut rope: Vec<Point> = Vec::new();
+    for _ in 0..9 {
+        rope.push(Point::new(0, 0));
+    }
 
-    let mut t_locations = HashSet::new();
-    t_locations.insert(t);
+    println!("{:?}", rope);
+    println!("{:?}", rope.len());
 
-    print_grid(h, t);
+    {
+        let mut h = Point { x: 0, y: 0 };
+        let mut t = Point { x: 0, y: 0 };
 
-    for s in split {
-        let dir = &s[0..1];
-        let val = s[2..s.len()].parse::<u64>().unwrap();
+        let mut t_locations = HashSet::new();
+        t_locations.insert(t);
 
-        if LOG {
-            println!("{} {}", dir, val);
-            print_grid(h, t);
-        }
-        for _ in 0..val {
-            h.move_one(dir);
+        print_grid(h, t);
 
-            if dist(t, h) > 1.5 {
-                for mv in t.possible_moves() {
-                    if dist(mv, h) == 1.0 {
-                        t = mv;
-                        break;
-                    }
-                }
-            }
+        for s in split {
+            let dir = &s[0..1];
+            let val = s[2..s.len()].parse::<u64>().unwrap();
+
             if LOG {
+                println!("{} {}", dir, val);
                 print_grid(h, t);
             }
-            t_locations.insert(t);
+            for _ in 0..val {
+                h.move_one(dir);
+                t.move_closer(h);
+
+                if LOG {
+                    print_grid(h, t);
+                }
+                t_locations.insert(t);
+            }
         }
+        println!("ch1: {}", t_locations.len());
     }
-    println!("ch1: {}", t_locations.len());
 }
