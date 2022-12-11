@@ -1,6 +1,8 @@
 use std::fs;
 
 static DIRECTIONS: [&str; 8] = ["U", "D", "L", "R", "UR", "UL", "DR", "DL"];
+static WIDTH: i64 = 10;
+static HEIGHT: i64 = WIDTH;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 struct Point {
@@ -9,6 +11,10 @@ struct Point {
 }
 
 impl Point {
+    fn as_tuple(&self) -> (u64, u64) {
+        (self.x as u64, self.y as u64)
+    }
+
     fn move_one(&mut self, dir: &str) -> Point {
         match dir {
             "U" => self.y += 1,
@@ -53,6 +59,23 @@ fn dist(a: Point, b: Point) -> f64 {
     sum.sqrt()
 }
 
+fn print_grid(h: Point, t: Point) {
+    for i in (0..HEIGHT).rev() {
+        for j in 0..WIDTH {
+            let p = Point{x: j, y: i};
+            if p == h {
+                print!("H");
+            } else if p == t {
+                print!("T");
+            } else {
+                print!(".");
+            }
+        }
+        print!("\n");
+    }
+    print!("\n");
+}
+
 fn main() {
     // let file_path = "./input.txt";
     let file_path = "./test_input.txt";
@@ -63,19 +86,16 @@ fn main() {
     let mut h = Point { x: 0, y: 0 };
     let mut t = Point { x: 0, y: 0 };
 
-    // println!("{:?}", h.move_one("D"));
-    // println!("{:?}", h.possible_moves());
+    print_grid(h, t);
 
     for s in split {
         let dir = &s[0..1];
         let val = s[2..s.len()].parse::<u64>().unwrap();
 
         println!("{} {}", dir, val);
-        println!("START HEAD: {:?}", h);
-        println!("START TAIL: {:?}", t);
+        print_grid(h, t);
         for _ in 0..val {
             h.move_one(dir);
-            println!("HEAD: {:?}", h);
 
             if dist(t, h) > 1.5 {
                 for mv in t.possible_moves() {
@@ -85,8 +105,7 @@ fn main() {
                     }
                 }
             }
-            println!("TAIL: {:?}", t);
-
+            print_grid(h, t);
         }
     }
 }
