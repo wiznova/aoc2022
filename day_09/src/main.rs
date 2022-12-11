@@ -95,8 +95,8 @@ fn print_grid(h: Point, t: Point) {
 
 fn main() {
     let LOG = false;
-    let file_path = "./input.txt";
-    // let file_path = "./test_input.txt";
+    // let file_path = "./input.txt";
+    let file_path = "./test_input.txt";
     println!("In file {}", file_path);
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     let split: Vec<&str> = contents.split("\n").collect();
@@ -105,6 +105,38 @@ fn main() {
     for _ in 0..9 {
         rope.push(Point::new(0, 0));
     }
+
+    // rope[0].move_one("U");
+    // rope[0].move_one("U");
+
+    let mut t_locations = HashSet::new();
+    t_locations.insert(rope[rope.len() - 1]);
+
+    // print_grid(h, t);
+
+    for s in &split {
+        let dir = &s[0..1];
+        let val = s[2..s.len()].parse::<u64>().unwrap();
+
+        // if LOG {
+        //     println!("{} {}", dir, val);
+        //     print_grid(h, t);
+        // }
+        for _ in 0..val {
+            rope[0].move_one(dir);
+            for i in 0..rope.len() - 2 {
+                let rope_clone = rope.clone();
+                rope[i + 1].move_closer(rope_clone[i]);
+            }
+
+            // if LOG {
+            //     print_grid(h, t);
+            // }
+            t_locations.insert(rope[rope.len() - 1]);
+        }
+    }
+    println!("ch2: {}", t_locations.len());
+
 
     println!("{:?}", rope);
     println!("{:?}", rope.len());
