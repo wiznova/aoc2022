@@ -16,17 +16,20 @@ impl Point {
         Point { x: x, y: y }
     }
 
-    fn as_tuple(&self) -> (u64, u64) {
-        (self.x as u64, self.y as u64)
-    }
-
     fn move_closer(&mut self, h: Point) {
         if dist(*self, h) > 1.5 {
             for mv in self.possible_moves() {
                 if dist(mv, h) == 1.0 {
                     self.x = mv.x;
                     self.y = mv.y;
-                    break;
+                    return ;
+                }
+            }
+            for mv in self.possible_moves() {
+                if dist(mv, h) < 1.5 {
+                    self.x = mv.x;
+                    self.y = mv.y;
+                    return ;
                 }
             }
         }
@@ -54,8 +57,7 @@ impl Point {
                 self.move_one("D");
                 self.move_one("L");
             }
-            // _ => (),
-            _ => println!("Bumped wall with: {} and {:?}", dir, self),
+            _ => (),
         }
         *self
     }
@@ -118,6 +120,34 @@ fn print_grid_ch2(rope: &Vec<Point>) {
     print!("\n");
 }
 
+// fn update_rope(rope: &mut Vec<Point>) {
+//     for i in 0..rope.len() - 1 {
+//         let rope_clone = rope.clone();
+//         print!("Move: id-{}-{:?} to ", i + 1, rope_clone[i + 1]);
+//         rope[i + 1].move_closer(rope_clone[i]);
+//         println!("{:?}", rope[i + 1]);
+//     }
+// }
+
+// H 1 2 3 4 5 6 7 8 9
+
+fn update_rope(rope: &mut Vec<Point>) {
+    for i in 0..rope.len() - 1 {
+        println!("Current i: {}", i);
+        let h = rope[i];
+        println!("Current head: {:?}", h);
+        println!("Current tail: {:?}", rope[i + 1]);
+        rope[i + 1].move_closer(h);
+        println!("Moved tail: {:?}", rope[i + 1]);
+    }
+
+    // let mut h = rope[0];
+    // rope[1].move_closer(h);
+
+    // h = rope[1];
+    // rope[2].move_closer(h);
+}
+
 fn main() {
     let LOG = false;
     // let file_path = "./input.txt";
@@ -149,10 +179,10 @@ fn main() {
         // }
         for _ in 0..val {
             rope[0].move_one(dir);
-            for i in 0..rope.len() - 2 {
-                let rope_clone = rope.clone();
-                rope[i + 1].move_closer(rope_clone[i]);
-            }
+
+            update_rope(&mut rope);
+
+            // println!("{:?}", rope);
             print_grid_ch2(&rope);
 
             // if LOG {
