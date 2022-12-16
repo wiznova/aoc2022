@@ -76,7 +76,7 @@ fn dist(a: Point, b: Point) -> f64 {
     sum.sqrt()
 }
 
-fn print_grid(h: Point, t: Point) {
+fn print_grid_ch1(h: Point, t: Point) {
     for i in (0..HEIGHT).rev() {
         for j in 0..WIDTH {
             let p = Point { x: j, y: i };
@@ -85,6 +85,31 @@ fn print_grid(h: Point, t: Point) {
             } else if p == t {
                 print!("T");
             } else {
+                print!(".");
+            }
+        }
+        print!("\n");
+    }
+    print!("\n");
+}
+
+fn print_grid_ch2(rope: &Vec<Point>) {
+    for i in (0..HEIGHT).rev() {
+        for j in 0..WIDTH {
+            let cursor = Point { x: j, y: i };
+            let mut matched = false;
+            for (k, p) in rope.iter().enumerate() {
+                if *p == cursor {
+                    matched = true;
+                    match k {
+                        0 => print!("H"),
+                        1..=9 => print!("{k}"),
+                        _ => (),
+                    }
+                    break;
+                }
+            }
+            if !matched {
                 print!(".");
             }
         }
@@ -128,6 +153,7 @@ fn main() {
                 let rope_clone = rope.clone();
                 rope[i + 1].move_closer(rope_clone[i]);
             }
+            print_grid_ch2(&rope);
 
             // if LOG {
             //     print_grid(h, t);
@@ -148,7 +174,7 @@ fn main() {
         let mut t_locations = HashSet::new();
         t_locations.insert(t);
 
-        print_grid(h, t);
+        print_grid_ch1(h, t);
 
         for s in split {
             let dir = &s[0..1];
@@ -156,14 +182,14 @@ fn main() {
 
             if LOG {
                 println!("{} {}", dir, val);
-                print_grid(h, t);
+                print_grid_ch1(h, t);
             }
             for _ in 0..val {
                 h.move_one(dir);
                 t.move_closer(h);
 
                 if LOG {
-                    print_grid(h, t);
+                    print_grid_ch1(h, t);
                 }
                 t_locations.insert(t);
             }
