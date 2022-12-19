@@ -1,9 +1,12 @@
 use std::collections::HashSet;
 use std::fs;
 
+static LOG: bool = false;
 static DIRECTIONS: [&str; 8] = ["U", "D", "L", "R", "UR", "UL", "DR", "DL"];
-static WIDTH: i64 = 6;
-static HEIGHT: i64 = 5;
+static WIDTH: i64 = 26;
+static HEIGHT: i64 = 21;
+static SX: i64 = 11;
+static SY: i64 = 5;
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 struct Point {
@@ -22,14 +25,14 @@ impl Point {
                 if dist(mv, h) == 1.0 {
                     self.x = mv.x;
                     self.y = mv.y;
-                    return ;
+                    return;
                 }
             }
             for mv in self.possible_moves() {
                 if dist(mv, h) < 1.5 {
                     self.x = mv.x;
                     self.y = mv.y;
-                    return ;
+                    return;
                 }
             }
         }
@@ -120,79 +123,46 @@ fn print_grid_ch2(rope: &Vec<Point>) {
     print!("\n");
 }
 
-// fn update_rope(rope: &mut Vec<Point>) {
-//     for i in 0..rope.len() - 1 {
-//         let rope_clone = rope.clone();
-//         print!("Move: id-{}-{:?} to ", i + 1, rope_clone[i + 1]);
-//         rope[i + 1].move_closer(rope_clone[i]);
-//         println!("{:?}", rope[i + 1]);
-//     }
-// }
-
-// H 1 2 3 4 5 6 7 8 9
-
 fn update_rope(rope: &mut Vec<Point>) {
     for i in 0..rope.len() - 1 {
-        println!("Current i: {}", i);
         let h = rope[i];
-        println!("Current head: {:?}", h);
-        println!("Current tail: {:?}", rope[i + 1]);
         rope[i + 1].move_closer(h);
-        println!("Moved tail: {:?}", rope[i + 1]);
     }
-
-    // let mut h = rope[0];
-    // rope[1].move_closer(h);
-
-    // h = rope[1];
-    // rope[2].move_closer(h);
 }
 
 fn main() {
-    let LOG = false;
-    // let file_path = "./input.txt";
-    let file_path = "./test_input.txt";
+    let file_path = "./input.txt";
+    // let file_path = "./test_input.txt";
+    // let file_path = "./test_input_2.txt";
     println!("In file {}", file_path);
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
     let split: Vec<&str> = contents.split("\n").collect();
 
     let mut rope: Vec<Point> = Vec::new();
-    for _ in 0..9 {
-        rope.push(Point::new(0, 0));
+    for _ in 0..10 {
+        rope.push(Point::new(SX, SY));
     }
-
-    // rope[0].move_one("U");
-    // rope[0].move_one("U");
 
     let mut t_locations = HashSet::new();
     t_locations.insert(rope[rope.len() - 1]);
 
-    // print_grid(h, t);
+    print_grid_ch2(&rope);
 
     for s in &split {
         let dir = &s[0..1];
         let val = s[2..s.len()].parse::<u64>().unwrap();
 
-        // if LOG {
-        //     println!("{} {}", dir, val);
-        //     print_grid(h, t);
-        // }
         for _ in 0..val {
             rope[0].move_one(dir);
-
             update_rope(&mut rope);
-
-            // println!("{:?}", rope);
-            print_grid_ch2(&rope);
-
-            // if LOG {
-            //     print_grid(h, t);
-            // }
             t_locations.insert(rope[rope.len() - 1]);
+        }
+        if LOG {
+            println!("{} {}", dir, val);
+            print_grid_ch2(&rope);
         }
     }
     println!("ch2: {}", t_locations.len());
-
 
     println!("{:?}", rope);
     println!("{:?}", rope.len());
